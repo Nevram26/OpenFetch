@@ -21,7 +21,10 @@ const qualities: Record<Format, { value: string; label: string; hint?: string }[
   ]
 }
 const defaults: Record<Format, string> = { mp3: '192', mp4: '720' }
-const folders: Record<Format, string> = { mp3: 'Downloads\\OpenFetch\\Music', mp4: 'Downloads\\OpenFetch\\Videos' }
+const folders: Record<Format, string> = {
+  mp3: 'Downloads\\OpenFetch\\Music',
+  mp4: 'Downloads\\OpenFetch\\Videos'
+}
 
 const choice =
   'flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 has-checked:border-leaf-600 has-checked:bg-leaf-100 has-focus-visible:outline-3 has-focus-visible:outline-leaf-600'
@@ -55,7 +58,12 @@ export function DownloadOptionsDialog({
         <h2 id="download-options-title" className="flex items-center gap-2 text-xl font-bold">
           <Download size={20} aria-hidden /> Download options
         </h2>
-        <button type="button" aria-label="Close" onClick={() => ref.current?.close()} className="rounded p-1 text-muted hover:text-ink">
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={() => ref.current?.close()}
+          className="rounded p-1 text-muted hover:text-ink"
+        >
           <X size={20} aria-hidden />
         </button>
       </div>
@@ -80,7 +88,11 @@ export function DownloadOptionsDialog({
                   setQuality(defaults[f])
                 }}
               />
-              {f === 'mp3' ? <FileAudio size={16} aria-hidden /> : <FileVideo size={16} aria-hidden />}
+              {f === 'mp3' ? (
+                <FileAudio size={16} aria-hidden />
+              ) : (
+                <FileVideo size={16} aria-hidden />
+              )}
               {f === 'mp3' ? 'MP3 (Audio)' : 'MP4 (Video)'}
             </label>
           ))}

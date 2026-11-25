@@ -12,7 +12,12 @@ test('renderer is isolated, screens are keyboard reachable, second instance exit
   expect(win.url()).toBe('app://openfetch/index.html')
   const globals = await win.evaluate(() => {
     const g = globalThis as Record<string, unknown>
-    return [typeof g['require'], typeof g['process'], typeof g['ipcRenderer'], typeof g['openfetch']]
+    return [
+      typeof g['require'],
+      typeof g['process'],
+      typeof g['ipcRenderer'],
+      typeof g['openfetch']
+    ]
   })
   expect(globals).toEqual(['undefined', 'undefined', 'undefined', 'object'])
 
@@ -35,7 +40,10 @@ test('renderer is isolated, screens are keyboard reachable, second instance exit
 
   // Download options open as a modal and close with Escape.
   await win.getByRole('button', { name: 'Search', exact: true }).click()
-  await win.getByRole('button', { name: /^Download MP3:/ }).first().click()
+  await win
+    .getByRole('button', { name: /^Download MP3:/ })
+    .first()
+    .click()
   await expect(win.getByRole('dialog', { name: 'Download options' })).toBeVisible()
   await win.keyboard.press('Escape')
   await expect(win.getByRole('dialog')).toHaveCount(0)
@@ -43,7 +51,10 @@ test('renderer is isolated, screens are keyboard reachable, second instance exit
   // A second launch hands over to the first instance and exits on its own.
   const code = await new Promise<number | null>((resolve, reject) => {
     const second = spawn(electronPath as unknown as string, ['.'], { stdio: 'ignore' })
-    const timer = setTimeout(() => (second.kill(), reject(new Error('second instance did not exit'))), 15_000)
+    const timer = setTimeout(
+      () => (second.kill(), reject(new Error('second instance did not exit'))),
+      15_000
+    )
     second.on('exit', (c) => (clearTimeout(timer), resolve(c)))
   })
   expect(code).toBe(0)

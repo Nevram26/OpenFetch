@@ -21,16 +21,24 @@ export function SettingsScreen() {
 
   return (
     <>
-      <PageHeader icon={<Settings size={24} />} title="Settings" subtitle="Defaults for new downloads. Editing arrives in a later update." />
+      <PageHeader
+        icon={<Settings size={24} />}
+        title="Settings"
+        subtitle="Defaults for new downloads. Editing arrives in a later update."
+      />
       <dl className="max-w-2xl divide-y divide-line rounded-lg border border-line">
-        {[...rows, ['OpenFetch version', info ? `${info.version} (Electron ${info.electron})` : '…'] as [string, string]].map(
-          ([k, v]) => (
-            <div key={k} className="flex justify-between gap-6 px-4 py-3 text-sm">
-              <dt className="font-medium">{k}</dt>
-              <dd className="text-right text-muted">{v}</dd>
-            </div>
-          )
-        )}
+        {[
+          ...rows,
+          ['OpenFetch version', info ? `${info.version} (Electron ${info.electron})` : '…'] as [
+            string,
+            string
+          ]
+        ].map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-6 px-4 py-3 text-sm">
+            <dt className="font-medium">{k}</dt>
+            <dd className="text-right text-muted">{v}</dd>
+          </div>
+        ))}
       </dl>
     </>
   )

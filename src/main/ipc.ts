@@ -22,7 +22,8 @@ export function guard<S extends z.ZodType, R>(
 ): (event: Pick<IpcMainInvokeEvent, 'senderFrame'>, payload?: unknown) => R {
   return (event, payload) => {
     const url = event.senderFrame?.url // null once the frame is destroyed or navigated away
-    if (!url || originOf(url) !== allowedOrigin) throw new Error('IPC call from an unexpected sender')
+    if (!url || originOf(url) !== allowedOrigin)
+      throw new Error('IPC call from an unexpected sender')
     return fn(schema.parse(payload))
   }
 }

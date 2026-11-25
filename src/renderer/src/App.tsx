@@ -19,9 +19,15 @@ export function App() {
 
   return (
     <div className="flex h-full">
-      <nav aria-label="Main" className="flex w-56 shrink-0 flex-col gap-1 border-r border-line bg-side p-3">
+      <nav
+        aria-label="Main"
+        className="flex w-56 shrink-0 flex-col gap-1 border-r border-line bg-side p-3"
+      >
         <div className="mb-4 flex items-center gap-2 px-2 pt-1 text-lg font-bold text-forest">
-          <span className="grid size-8 place-items-center rounded-lg bg-leaf-600 text-white" aria-hidden>
+          <span
+            className="grid size-8 place-items-center rounded-lg bg-leaf-600 text-white"
+            aria-hidden
+          >
             <CloudDownload size={18} />
           </span>
           OpenFetch

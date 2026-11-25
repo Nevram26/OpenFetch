@@ -13,7 +13,9 @@ test.each([
 })
 
 test('dot segments are normalized by the URL parser and stay inside the folder', () => {
-  expect(resolveAppFile(root, 'app://openfetch/%2e%2e/main/index.js')).toBe(path.join(root, 'main', 'index.js'))
+  expect(resolveAppFile(root, 'app://openfetch/%2e%2e/main/index.js')).toBe(
+    path.join(root, 'main', 'index.js')
+  )
 })
 
 test.each([
