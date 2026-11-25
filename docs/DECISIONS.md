@@ -98,6 +98,6 @@ The maintainer accepted these open decisions as recommended.
 | D1 | Code signing vs. manual updates | Apply for SignPath Foundation signing. v1 ships with manual updates if signing is not approved in time (ADR-005) |
 | D2 | yt-dlp release channel | Stable by default; the verified engine updater may install nightly when stable is broken (ADR-006) |
 | D3 | M4A in v1 | Deferred until after v1. v1 ships MP3 and MP4 |
-| D4 | `yt-dlp.exe` (onefile) vs. `yt-dlp_win.zip` (onedir) | Measure startup time in Phase 1, then record the choice here |
+| D4 | `yt-dlp.exe` (onefile) vs. `yt-dlp_win.zip` (onedir) | Onedir. It starts in 0.5-0.8 s against 1.4-2.0 s for onefile, and skips the onefile self-extract to `%TEMP%` on every call ([engine findings](ENGINE_FINDINGS.md), #3). The manifest pins the zip hash from the signed SUMS. Re-check cancellation against onedir before Phase 4 |
 | D5 | Search thumbnails | Load directly from the YouTube thumbnail host, with a narrow CSP `img-src` allowlist |
 | D6 | `EnableNodeCliInspectArguments` fuse | Disabled in release builds. Playwright E2E runs against unpackaged builds; packaged builds get a launch smoke test |
