@@ -1,33 +1,6 @@
-// Empty states for screens whose backend arrives later (#8 links, #9/#10 downloads, #11 library).
-import { Download, FolderOpen, Link2, Music, Search, Trash2, Video } from 'lucide-react'
+// Empty states for screens whose backend arrives later (#9/#10 downloads, #11 library).
+import { Download, FolderOpen, Music, Search, Trash2, Video } from 'lucide-react'
 import { Button, EmptyState, PageHeader } from '../components/ui'
-
-export function PasteLinkScreen() {
-  return (
-    <>
-      <PageHeader
-        icon={<Link2 size={24} />}
-        title="Paste link"
-        subtitle="Download a single video or choose items from a playlist."
-      />
-      <form className="mb-6 flex gap-3" onSubmit={(e) => e.preventDefault()}>
-        <input
-          type="url"
-          aria-label="Video or playlist link"
-          placeholder="https://www.youtube.com/watch?v=…"
-          className="flex-1 rounded-md border border-line px-3 py-2.5 text-[15px] focus:border-leaf-600"
-        />
-        <Button type="submit" variant="primary" disabled>
-          Check link
-        </Button>
-      </form>
-      <EmptyState icon={<Link2 size={32} />} title="Links are connected in a later update">
-        You will be able to paste a YouTube video, Short or playlist link here. Only download media
-        you are allowed to save.
-      </EmptyState>
-    </>
-  )
-}
 
 export function DownloadsScreen() {
   return (

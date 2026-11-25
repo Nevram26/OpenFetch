@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { CloudDownload, Download, FolderOpen, Link2, Search, Settings } from 'lucide-react'
 import { SearchScreen } from './features/search/SearchScreen'
-import { DownloadsScreen, LibraryScreen, PasteLinkScreen } from './features/placeholders'
+import { PasteLinkScreen } from './features/link/PasteLinkScreen'
+import { DownloadsScreen, LibraryScreen } from './features/placeholders'
 import { SettingsScreen } from './features/settings/SettingsScreen'
 
 const screens = [

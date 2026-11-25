@@ -14,6 +14,7 @@
   --color-leaf-600: #4a712b;
   --color-leaf-700: #34591e;
   --color-forest: #294f3c;
+  --color-danger: #a33a2c;
 }
 
 html,
@@ -34,4 +35,9 @@ body {
 
 dialog::backdrop {
   background: rgb(32 41 35 / 0.45);
+}
+
+/* The search box has its own labelled Clear button; hide the native one. */
+input[type='search']::-webkit-search-cancel-button {
+  appearance: none;
 }
