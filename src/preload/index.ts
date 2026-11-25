@@ -10,7 +10,12 @@ const api: OpenFetchApi = {
   inspectPlaylist: (url) => ipcRenderer.invoke('playlist:inspect', url),
   historyList: () => ipcRenderer.invoke('history:list'),
   historyClear: () => ipcRenderer.invoke('history:clear'),
-  copyText: (text) => ipcRenderer.invoke('clipboard:write', text)
+  copyText: (text) => ipcRenderer.invoke('clipboard:write', text),
+  libraryList: () => ipcRenderer.invoke('library:list'),
+  libraryRemoveRecord: (id) => ipcRenderer.invoke('library:removeRecord', id),
+  libraryDeleteFile: (id) => ipcRenderer.invoke('library:deleteFile', id),
+  libraryOpenFile: (id) => ipcRenderer.invoke('library:openFile', id),
+  libraryRevealFile: (id) => ipcRenderer.invoke('library:revealFile', id)
 }
 
 contextBridge.exposeInMainWorld('openfetch', api)

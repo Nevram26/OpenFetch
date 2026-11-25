@@ -1,9 +1,14 @@
-import { app, BrowserWindow, ipcMain, net, protocol, session } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, net, protocol, session, shell } from 'electron'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { z } from 'zod'
 import { APP_ORIGIN, APP_SCHEME, resolveAppFile } from './app-protocol.js'
 import { guard, originOf } from './ipc.js'
 import { registerEngineIpc } from './engine/ipc.js'
+import {
+  registerLibraryIpc,
+  registerMediaProtocol,
+  registerMediaSchemePrivileges
+} from './library/index.js'
 import type { AppInfo } from '../shared/api.js'
 
 // Dev loads the electron-vite server; everything else loads the built UI over app://, never file://.
@@ -14,6 +19,8 @@ const rendererDir = fileURLToPath(new URL('../renderer/', import.meta.url))
 protocol.registerSchemesAsPrivileged([
   { scheme: APP_SCHEME, privileges: { standard: true, secure: true, supportFetchAPI: true } }
 ])
+
+registerMediaSchemePrivileges(protocol)
 
 let mainWindow: BrowserWindow | null = null
 
@@ -78,6 +85,14 @@ if (!app.requestSingleInstanceLock()) {
     )
 
     registerEngineIpc(uiOrigin)
+    registerLibraryIpc({
+      ipcMain,
+      allowedOrigin: uiOrigin,
+      dataDir: app.getPath('userData'),
+      dialog,
+      shell
+    })
+    registerMediaProtocol(protocol, app.getPath('userData'))
 
     createWindow()
   })
