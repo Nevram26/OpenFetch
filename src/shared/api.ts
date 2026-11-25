@@ -1,6 +1,7 @@
 // The complete surface the preload exposes to the renderer as `window.openfetch`.
 // Every function maps to one validated IPC channel in the main process.
 import type { ErrorCode } from './errors.js'
+import type { LibraryEntry } from './library.js'
 
 export interface AppInfo {
   version: string
@@ -44,4 +45,9 @@ export interface OpenFetchApi {
   historyClear(): Promise<void>
   /** Clipboard write via main: the renderer has no clipboard permission (all permissions are denied). */
   copyText(text: string): Promise<void>
+  libraryList(): Promise<LibraryEntry[]>
+  libraryRemoveRecord(id: string): Promise<void>
+  libraryDeleteFile(id: string): Promise<void>
+  libraryOpenFile(id: string): Promise<void>
+  libraryRevealFile(id: string): Promise<void>
 }
