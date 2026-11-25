@@ -22,7 +22,7 @@ import { removeStaging } from '../engine/kill-tree.js'
 const execFile = promisify(nodeExecFile)
 
 export interface DownloadServiceOptions extends Omit<EngineOptions, 'timeoutMs' | 'onLine'> {
-  ffprobe?: (path: string) => Promise<unknown>
+  ffprobe?: (path: string, signal: AbortSignal) => Promise<unknown>
   stagingRoot?: string
 }
 
@@ -40,17 +40,24 @@ function localFailure(error: unknown, options: DownloadServiceOptions): ErrorCod
   return 'postprocess_failed'
 }
 
-async function probeFile(path: string, ffprobe: string): Promise<unknown> {
-  const { stdout } = await execFile(
+async function probeFile(path: string, ffprobe: string, signal: AbortSignal): Promise<unknown> {
+  const execution = execFile(
     ffprobe,
     ['-v', 'error', '-show_streams', '-show_format', '-of', 'json', path],
     {
       windowsHide: true,
       maxBuffer: 8 * 1024 * 1024,
-      timeout: 30_000
+      timeout: 30_000,
+      signal
     }
   )
-  return JSON.parse(stdout)
+  const closed = new Promise<void>((resolve) => execution.child.once('close', () => resolve()))
+  try {
+    const { stdout } = await execution
+    return JSON.parse(stdout)
+  } finally {
+    await closed
+  }
 }
 
 function contained(root: string, file: string): boolean {
@@ -61,13 +68,15 @@ function contained(root: string, file: string): boolean {
 export function createDownloadService(options: DownloadServiceOptions) {
   const active = new Map<string, EngineRun>()
   const lifetimes = new Map<string, Promise<DownloadRunResult>>()
+  const probes = new Map<string, AbortController>()
   const canceled = new Set<string>()
   let shuttingDown = false
   const root = resolve(options.stagingRoot ?? join(tmpdir(), 'OpenFetch-downloads'))
 
   async function runJob(
     job: DownloadJob,
-    onUpdate: (update: DownloadUpdate) => void
+    onUpdate: (update: DownloadUpdate) => void,
+    signal: AbortSignal
   ): Promise<DownloadRunResult> {
     const id = job.id
     try {
@@ -146,9 +155,9 @@ export function createDownloadService(options: DownloadServiceOptions) {
           const file = await lstat(reported)
           if (!file.isFile() || file.isSymbolicLink())
             return failure('postprocess_failed', 'Reported output is not a regular file')
-          const probe = await (options.ffprobe ?? ((p) => probeFile(p, options.paths.ffprobe)))(
-            reported
-          )
+          const probe = await (
+            options.ffprobe ?? ((p, s) => probeFile(p, options.paths.ffprobe, s))
+          )(reported, signal)
           const actualOutput = parseFfprobe(probe)
           if (!actualOutput)
             return failure('postprocess_failed', 'Could not verify output metadata')
@@ -192,16 +201,21 @@ export function createDownloadService(options: DownloadServiceOptions) {
       job: DownloadJob,
       onUpdate: (update: DownloadUpdate) => void
     ): Promise<DownloadRunResult> {
-      const task = runJob(job, onUpdate)
+      if (lifetimes.has(job.id)) return failure('invalid_input', 'Invalid or active job id')
+      const controller = new AbortController()
+      probes.set(job.id, controller)
+      const task = runJob(job, onUpdate, controller.signal)
       if (job.id) lifetimes.set(job.id, task)
       try {
         return await task
       } finally {
         if (lifetimes.get(job.id) === task) lifetimes.delete(job.id)
+        probes.delete(job.id)
       }
     },
     async cancel(id: string): Promise<void> {
       canceled.add(id)
+      probes.get(id)?.abort()
       active.get(id)?.cancel()
       await lifetimes.get(id)
     },
@@ -211,6 +225,7 @@ export function createDownloadService(options: DownloadServiceOptions) {
       await Promise.all(
         ids.map(async (id) => {
           canceled.add(id)
+          probes.get(id)?.abort()
           active.get(id)?.cancel()
           await lifetimes.get(id)
         })
