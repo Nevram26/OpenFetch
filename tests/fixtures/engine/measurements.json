@@ -1,0 +1,81 @@
+{
+ "ytdlpVersion": "2026.11.23",
+ "zipSha256": "824860984b96ca01de09f98f7bfd74ed7bbdce72a3340b51af8b9dc5ee037a5f",
+ "zipHashInSignedSums": true,
+ "onefileSizeBytes": 23627865,
+ "onedirFileCount": 143,
+ "onefileStartup": {
+  "runs": [
+   2061,
+   1898,
+   2004,
+   1965,
+   2284
+  ],
+  "medianMs": 2004
+ },
+ "onedirStartup": {
+  "runs": [
+   3009,
+   839,
+   968,
+   663,
+   808
+  ],
+  "medianMs": 839
+ },
+ "searchLatencyMs": [
+  2707,
+  2955,
+  2977
+ ],
+ "ffprobe": {
+  "mp3": {
+   "file": "Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film [aqz-KE-bpKQ].mp3",
+   "bitRate": "192902",
+   "duration": "634.624000",
+   "streams": [
+    {
+     "type": "audio",
+     "codec": "mp3",
+     "bit_rate": "192000"
+    },
+    {
+     "type": "video",
+     "codec": "mjpeg",
+     "profile": "Baseline",
+     "width": 1278,
+     "height": 720
+    }
+   ]
+  },
+  "mp4": {
+   "file": "Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film [aqz-KE-bpKQ].mp4",
+   "bitRate": "2293028",
+   "duration": "634.624000",
+   "streams": [
+    {
+     "type": "video",
+     "codec": "h264",
+     "profile": "Main",
+     "width": 1280,
+     "height": 720,
+     "bit_rate": "1891727"
+    },
+    {
+     "type": "audio",
+     "codec": "aac",
+     "profile": "LC",
+     "bit_rate": "386250"
+    },
+    {
+     "type": "video",
+     "codec": "mjpeg",
+     "profile": "Baseline",
+     "width": 1278,
+     "height": 720
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "args": [
+  "--ignore-config",
+  "--no-update",
+  "--js-runtimes",
+  "deno:<BIN>\\deno.exe",
+  "--ffmpeg-location",
+  "<BIN>",
+  "--yes-playlist",
+  "--flat-playlist",
+  "--playlist-items",
+  "1:5",
+  "-J",
+  "--",
+  "https://www.youtube.com/playlist?list=PLa1F2ddGya_8NhFM-rx_xh5SlIGbHyrZZ"
+ ],
+ "stdout": "{\"id\": \"PLa1F2ddGya_8NhFM-rx_xh5SlIGbHyrZZ\", \"title\": \"Blender Feature Demos\", \"availability\": \"public\", \"channel_follower_count\": null, \"description\": \"Feature-specific demos.\", \"tags\": [], \"thumbnails\": [{\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEWCKgBEF5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLAZvQH_00SciwpPcUZFYBEC48US8g\", \"height\": 94, \"width\": 168, \"id\": \"0\", \"resolution\": \"168x94\"}, {\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEWCMQBEG5IWvKriqkDCQgBFQAAiEIYAQ==&rs=AOn4CLB7fQ_XaSF3O3M1dMqtYOGnaIC9xA\", \"height\": 110, \"width\": 196, \"id\": \"1\", \"resolution\": \"196x110\"}, {\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEXCPYBEIoBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLCAOikA42cZPhYqOPgVRlNOpgQkgQ\", \"height\": 138, \"width\": 246, \"id\": \"2\", \"resolution\": \"246x138\"}, {\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEXCNACELwBSFryq4qpAwkIARUAAIhCGAE=&rs=AOn4CLBzgq6v0Nq1tt2JdJJVjStgPKb--A\", \"height\": 188, \"width\": 336, \"id\": \"3\", \"resolution\": \"336x188\"}], \"modified_date\": \"20240717\", \"view_count\": 4241, \"playlist_count\": 1, \"channel\": \"Blender\", \"channel_id\": \"UCSMOQeBJ2RAnuFungnQOxLg\", \"uploader_id\": \"@BlenderOfficial\", \"uploader\": \"Blender\", \"channel_url\": \"https://www.youtube.com/channel/UCSMOQeBJ2RAnuFungnQOxLg\", \"uploader_url\": \"https://www.youtube.com/@BlenderOfficial\", \"_type\": \"playlist\", \"entries\": [{\"title\": \"Keying Animation Updates in Blender 4.1\", \"thumbnails\": [{\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDuidmIW6gghIEi7T0764DYmph-tw\", \"height\": 94, \"width\": 168}, {\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEbCMQBEG5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDk8Lxa4vPaTyz9MnQtT7nBAEyelA\", \"height\": 110, \"width\": 196}, {\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEcCPYBEIoBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAUkasU-ZiClzQ5yNgW2rQlkBPyFg\", \"height\": 138, \"width\": 246}, {\"url\": \"https://i.ytimg.com/vi/bLojKyJx7fA/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAhTZ86gA3EPa7tx3PAtTvlFDSTAA\", \"height\": 188, \"width\": 336}], \"duration\": 180, \"view_count\": 70000, \"timestamp\": null, \"live_status\": null, \"availability\": null, \"channel_url\": \"https://www.youtube.com/channel/UCSMOQeBJ2RAnuFungnQOxLg\", \"uploader_url\": \"https://www.youtube.com/@BlenderOfficial\", \"creators\": null, \"channel\": \"Blender\", \"channel_id\": \"UCSMOQeBJ2RAnuFungnQOxLg\", \"uploader\": \"Blender\", \"uploader_id\": \"@BlenderOfficial\", \"ie_key\": \"Youtube\", \"id\": \"bLojKyJx7fA\", \"_type\": \"url\", \"url\": \"https://www.youtube.com/watch?v=bLojKyJx7fA\", \"__x_forwarded_for_ip\": null}], \"extractor_key\": \"YoutubeTab\", \"extractor\": \"youtube:tab\", \"webpage_url\": \"https://www.youtube.com/playlist?list=PLa1F2ddGya_8NhFM-rx_xh5SlIGbHyrZZ\", \"original_url\": \"https://www.youtube.com/playlist?list=PLa1F2ddGya_8NhFM-rx_xh5SlIGbHyrZZ\", \"webpage_url_basename\": \"playlist\", \"webpage_url_domain\": \"youtube.com\", \"release_year\": null, \"epoch\": 1795624710, \"__files_to_move\": {}, \"_version\": {\"version\": \"2026.11.23\", \"current_git_head\": null, \"release_git_head\": \"696c0673e9e06bf50514a11e6796644771ce330e\", \"repository\": \"yt-dlp/yt-dlp\"}}\n",
+ "stderr": "",
+ "exitCode": 0,
+ "durationMs": 1953,
+ "startedAt": "2026-11-25T16:38:28.912Z",
+ "notes": "Blender Feature Demos playlist, items 1:5, metadata only",
+ "chunkTimings": [
+  [
+   1577,
+   "o",
+   3245
+  ]
+ ]
+}

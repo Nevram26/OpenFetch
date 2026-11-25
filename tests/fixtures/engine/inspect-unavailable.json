@@ -1,0 +1,32 @@
+{
+ "args": [
+  "--ignore-config",
+  "--no-update",
+  "--js-runtimes",
+  "deno:<BIN>\\deno.exe",
+  "--ffmpeg-location",
+  "<BIN>",
+  "--no-playlist",
+  "-J",
+  "--",
+  "AAAAAAAAAAA"
+ ],
+ "stdout": "null\n",
+ "stderr": "ERROR: [youtube] AAAAAAAAAAA: This video is unavailable\n",
+ "exitCode": 1,
+ "durationMs": 2086,
+ "startedAt": "2026-11-25T16:38:31.455Z",
+ "notes": "nonexistent video ID: error classification sample",
+ "chunkTimings": [
+  [
+   1627,
+   "e",
+   56
+  ],
+  [
+   1627,
+   "o",
+   5
+  ]
+ ]
+}
