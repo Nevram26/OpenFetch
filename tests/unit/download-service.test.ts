@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events'
 import { PassThrough } from 'node:stream'
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import type { ChildProcess } from 'node:child_process'
@@ -248,4 +248,49 @@ describe('download service', () => {
     await expect(readFile(join(root, 'Sample.mp3'))).rejects.toThrow()
     await rm(root, { recursive: true, force: true })
   })
+})
+
+it('aborts verification on cancel and waits for its cleanup', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'of-probe-abort-'))
+  let started!: () => void
+  const probing = new Promise<void>((resolve) => {
+    started = resolve
+  })
+  let exited = false
+  const service = createDownloadService({
+    paths: { ytDlp: 'yt-dlp', ffmpegDir: 'bin', ffprobe: 'ffprobe', deno: 'deno' },
+    stagingRoot: join(root, 'stage'),
+    spawn: spawnFor(async (args, out, err, child) => {
+      const home = args.find((arg) => arg.startsWith('home:'))!.slice(5)
+      await mkdir(home, { recursive: true })
+      const file = join(home, 'Sample.mp3')
+      await writeFile(file, 'staged')
+      out.write(`[OFPATH] ${JSON.stringify(file)}\n`)
+      finish(child, out, err)
+    }),
+    ffprobe: async (_file, signal) => {
+      started()
+      await new Promise<void>((resolve) =>
+        signal.addEventListener(
+          'abort',
+          () => {
+            setTimeout(() => {
+              exited = true
+              resolve()
+            }, 10)
+          },
+          { once: true }
+        )
+      )
+      throw new Error('Probe aborted')
+    }
+  })
+  const run = service.run(job('abort-probe', root), () => {})
+  await probing
+  await service.cancel('abort-probe')
+  expect(exited).toBe(true)
+  expect(await run).toMatchObject({ ok: false })
+  expect(await readdir(join(root, 'stage'))).toEqual([])
+  await expect(readFile(join(root, 'Sample.mp3'))).rejects.toThrow()
+  await rm(root, { recursive: true, force: true })
 })
