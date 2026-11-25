@@ -1,3 +1,7 @@
 node_modules/
 resources/binaries/
 resources/.staging/
+out/
+dist/
+test-results/
+UI/

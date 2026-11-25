@@ -1,0 +1,20 @@
+# Minimal packaging config for verifying the security baseline (`npm run build:unpack`).
+# Installer/portable targets, bundled engine binaries and publishing come in #12.
+appId: io.github.nevram26.openfetch
+productName: OpenFetch
+directories:
+  output: dist
+files:
+  - out/**
+  - package.json
+electronFuses:
+  runAsNode: false
+  enableCookieEncryption: true
+  enableNodeOptionsEnvironmentVariable: false
+  # Disabled in release builds; Playwright E2E therefore runs against the unpackaged build.
+  enableNodeCliInspectArguments: false
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: false
+win:
+  target: dir

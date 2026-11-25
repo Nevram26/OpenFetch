@@ -1,0 +1,37 @@
+@import 'tailwindcss';
+
+/* Design tokens from UI/OpenFetch_UI_Mockup.svg (neutral light theme, jade/olive accent). */
+@theme {
+  --font-sans: 'Segoe UI', system-ui, sans-serif;
+  --color-ink: #202923;
+  --color-muted: #66746b;
+  --color-line: #d9e2d6;
+  --color-side: #f7f9f5;
+  --color-leaf-50: #f1f7ea;
+  --color-leaf-100: #e5f0d8;
+  --color-leaf-200: #d9ebca;
+  --color-leaf-300: #c9dcb8;
+  --color-leaf-600: #4a712b;
+  --color-leaf-700: #34591e;
+  --color-forest: #294f3c;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-white font-sans text-ink antialiased;
+}
+
+/* Visible focus everywhere, keyboard users first. */
+:focus-visible {
+  outline: 3px solid var(--color-leaf-600);
+  outline-offset: 2px;
+}
+
+dialog::backdrop {
+  background: rgb(32 41 35 / 0.45);
+}
