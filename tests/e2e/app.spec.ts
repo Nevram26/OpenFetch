@@ -29,7 +29,13 @@ test('search shows fixture results, rejects hostile links, reports engine errors
   await search.press('Enter')
   await expect(win.getByRole('status').filter({ hasText: '20 results' })).toBeVisible()
   await expect(win.getByRole('heading', { name: 'Spring - Blender Open Movie' })).toBeVisible()
-  await expect(win.getByRole('button', { name: /^Download MP3:/ }).first()).toBeDisabled()
+  await expect(win.getByRole('button', { name: /^Download MP3:/ }).first()).toBeEnabled()
+  await win
+    .getByRole('button', { name: /^Download MP3:/ })
+    .first()
+    .click()
+  await expect(win.getByRole('dialog', { name: 'Download options' })).toBeVisible()
+  await win.getByRole('button', { name: 'Cancel' }).click()
   await expect(win.getByRole('button', { name: 'blender open movie', exact: true })).toBeVisible() // history chip
   await win.getByRole('button', { name: 'Clear history' }).click()
   await expect(win.getByRole('group', { name: 'Recent searches' })).toHaveCount(0)

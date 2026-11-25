@@ -1,9 +1,20 @@
-import { app, BrowserWindow, dialog, ipcMain, net, protocol, session, shell } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  ipcMain,
+  net,
+  protocol,
+  session,
+  shell,
+  type MessageBoxOptions
+} from 'electron'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { z } from 'zod'
 import { APP_ORIGIN, APP_SCHEME, resolveAppFile } from './app-protocol.js'
 import { guard, originOf } from './ipc.js'
 import { registerEngineIpc } from './engine/ipc.js'
+import { registerQueueIpc } from './queue/ipc.js'
 import {
   registerLibraryIpc,
   registerMediaProtocol,
@@ -19,7 +30,6 @@ const rendererDir = fileURLToPath(new URL('../renderer/', import.meta.url))
 protocol.registerSchemesAsPrivileged([
   { scheme: APP_SCHEME, privileges: { standard: true, secure: true, supportFetchAPI: true } }
 ])
-
 registerMediaSchemePrivileges(protocol)
 
 let mainWindow: BrowserWindow | null = null
@@ -62,7 +72,7 @@ if (!app.requestSingleInstanceLock()) {
     mainWindow.focus()
   })
 
-  void app.whenReady().then(() => {
+  void app.whenReady().then(async () => {
     session.defaultSession.setPermissionRequestHandler((_wc, _permission, callback) =>
       callback(false)
     )
@@ -85,6 +95,9 @@ if (!app.requestSingleInstanceLock()) {
     )
 
     registerEngineIpc(uiOrigin)
+
+    const queue = registerQueueIpc(uiOrigin, () => mainWindow)
+    await queue.initialize()
     registerLibraryIpc({
       ipcMain,
       allowedOrigin: uiOrigin,
@@ -93,8 +106,28 @@ if (!app.requestSingleInstanceLock()) {
       shell
     })
     registerMediaProtocol(protocol, app.getPath('userData'))
-
     createWindow()
+    let allowQuit = false
+    app.on('before-quit', (event) => {
+      if (allowQuit || !queue.hasActive) return
+      event.preventDefault()
+      const options: MessageBoxOptions = {
+        type: 'warning',
+        title: 'Downloads are active',
+        message: 'Quit OpenFetch and stop active downloads?',
+        buttons: ['Quit and stop downloads', 'Keep downloading'],
+        defaultId: 1,
+        cancelId: 1
+      }
+      void (
+        mainWindow ? dialog.showMessageBox(mainWindow, options) : dialog.showMessageBox(options)
+      ).then(async ({ response }) => {
+        if (response !== 0) return
+        await queue.shutdown()
+        allowQuit = true
+        app.quit()
+      })
+    })
   })
 
   app.on('window-all-closed', () => app.quit())

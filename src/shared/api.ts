@@ -1,7 +1,9 @@
 // The complete surface the preload exposes to the renderer as `window.openfetch`.
 // Every function maps to one validated IPC channel in the main process.
 import type { ErrorCode } from './errors.js'
+import type { QueueJob } from './queue.js'
 import type { LibraryEntry } from './library.js'
+import type { DownloadOptions } from './download-options.js'
 
 export interface AppInfo {
   version: string
@@ -45,6 +47,25 @@ export interface OpenFetchApi {
   historyClear(): Promise<void>
   /** Clipboard write via main: the renderer has no clipboard permission (all permissions are denied). */
   copyText(text: string): Promise<void>
+  downloadsEnqueue(
+    entries: { source: MediaSource; options: DownloadOptions; destination?: string }[],
+    confirmDuplicates?: boolean
+  ): Promise<string[]>
+  downloadsList(): Promise<QueueJob[]>
+  downloadsHasRecovery(): Promise<boolean>
+  downloadsCancel(id: string): Promise<void>
+  downloadsRetry(id: string): Promise<void>
+  downloadsClearFinished(): Promise<void>
+  downloadsConfirmResume(): Promise<void>
+  downloadsOnChanged(callback: (jobs: QueueJob[]) => void): () => void
+  downloadsGetFolder(format: 'music' | 'video'): Promise<string>
+  downloadsChooseFolder(format: 'music' | 'video'): Promise<string | null>
+  downloadsGetSettings(): Promise<{
+    musicFolder: string
+    videoFolder: string
+    concurrency: 1 | 2 | 3
+  }>
+  downloadsSetConcurrency(value: 1 | 2 | 3): Promise<void>
   libraryList(): Promise<LibraryEntry[]>
   libraryRemoveRecord(id: string): Promise<void>
   libraryDeleteFile(id: string): Promise<void>

@@ -4,6 +4,7 @@ import type { MediaSource } from '../../../../shared/api'
 import type { ErrorCode } from '../../../../shared/errors'
 import { Button, EmptyState, EngineError } from '../../components/ui'
 import { formatDuration, formatViews } from './format'
+import { DownloadOptionsDialog, type Format } from './DownloadOptionsDialog'
 
 const durations = {
   any: { label: 'Any duration', test: () => true },
@@ -25,6 +26,7 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
   const [state, setState] = useState<State>({ status: 'idle' })
   const [history, setHistory] = useState<string[]>([])
   const [duration, setDuration] = useState<DurationKey>('any')
+  const [download, setDownload] = useState<{ source: MediaSource; format: Format }>()
   const latest = useRef<string | null>(null) // requestId of the search whose answer we still want
 
   const refreshHistory = () => void window.openfetch.historyList().then(setHistory)
@@ -39,7 +41,7 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
   function run(raw: string) {
     const text = raw.trim()
     if (!text) return // empty queries never start a search
-    const id = `search-${++searchSequence}`
+    const id = `${Date.now()}-${++searchSequence}`
     latest.current = id
     setQuery(text)
     setState({ status: 'loading' })
@@ -83,6 +85,34 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
 
   return (
     <>
+      {download && (
+        <DownloadOptionsDialog
+          result={download.source}
+          initialFormat={download.format}
+          onClose={() => setDownload(undefined)}
+          onQueue={async (source, options, destination) => {
+            const entry = { source, options, ...(destination ? { destination } : {}) }
+            try {
+              await window.openfetch.downloadsEnqueue([entry])
+            } catch (e) {
+              if (
+                !(
+                  typeof e === 'object' &&
+                  e !== null &&
+                  'message' in e &&
+                  String(e.message).startsWith('DUPLICATE_DOWNLOAD:')
+                ) ||
+                !window.confirm(
+                  'This exact download is already queued or in your library. Add another copy with a non-conflicting filename?'
+                )
+              )
+                throw e
+              await window.openfetch.downloadsEnqueue([entry], true)
+            }
+            onOpenDownloads()
+          }}
+        />
+      )}
       <h1 className="sr-only">Search</h1>
       <form
         role="search"
@@ -233,19 +263,16 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
                 <p className="text-xs text-muted">{formatViews(r.viewCount)}</p>
               )}
             </div>
-            {/* Downloads are wired in Phase 4 (#9/#10). */}
             <div className="flex gap-2">
               <Button
-                disabled
-                title="Downloads arrive in a later update"
+                onClick={() => setDownload({ source: r, format: 'mp3' })}
                 aria-label={`Download MP3: ${r.title}`}
               >
                 <FileAudio size={16} aria-hidden /> MP3
               </Button>
               <Button
                 variant="primary"
-                disabled
-                title="Downloads arrive in a later update"
+                onClick={() => setDownload({ source: r, format: 'mp4' })}
                 aria-label={`Download MP4: ${r.title}`}
               >
                 <FileVideo size={16} aria-hidden /> MP4

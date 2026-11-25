@@ -4,7 +4,14 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig([
-  globalIgnores(['out/', 'dist/', 'resources/binaries/', 'node_modules/']),
+  globalIgnores([
+    'out/',
+    'dist/',
+    'resources/binaries/',
+    'node_modules/',
+    '.claude/',
+    'graphify-out/'
+  ]),
   js.configs.recommended,
   tseslint.configs.recommended,
   reactHooks.configs.flat.recommended
