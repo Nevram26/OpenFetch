@@ -16,13 +16,17 @@
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.web.json",
     "build:unpack": "electron-vite build && electron-builder --dir",
     "binaries:fetch": "tsx scripts/fetch-binaries.ts",
-    "binaries:verify": "tsx scripts/verify-binaries.ts"
+    "binaries:verify": "tsx scripts/verify-binaries.ts",
+    "lint": "eslint .",
+    "format:check": "prettier --check src tests scripts .github *.ts *.js package.json",
+    "format": "prettier --write src tests scripts .github *.ts *.js package.json"
   },
   "dependencies": {
     "openpgp": "^6.3.3",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "@playwright/test": "^1.65.1",
     "@tailwindcss/vite": "^4.3.5",
     "@types/node": "^24",
@@ -32,13 +36,24 @@
     "electron": "~45.5",
     "electron-builder": "^26.18.0",
     "electron-vite": "^6.0.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "lucide-react": "^1.80.0",
+    "prettier": "^3.10.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "tailwindcss": "^4.3.5",
     "tsx": "^4.23.15",
     "typescript": "~6.0.3",
+    "typescript-eslint": "^8.74.0",
     "vite": "^8.3.8",
     "vitest": "^5.1.2"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 100,
+    "trailingComma": "none",
+    "endOfLine": "auto"
   }
 }
