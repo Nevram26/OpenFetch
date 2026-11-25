@@ -16,8 +16,9 @@ const URL = 'https://www.youtube.com/watch?v=aqz-KE-bpKQ'
 describe('buildDownloadArgs', () => {
   const a = buildDownloadArgs({ format: 'mp3', bitrateKbps: 192 }, { url: URL, stagingDir: 'S' })
   it('mp3 matches the spike', () => {
-    expect(a.slice(0, 8)).toEqual([
-      '--no-playlist',
+    expect(a.slice(0, 5)).toEqual(['--no-playlist', '--retries', '1', '--fragment-retries', '1'])
+    expect(a.slice(5, 9)).toEqual(['--sleep-interval', '1', '--max-sleep-interval', '1'])
+    expect(a.slice(9, 16)).toEqual([
       '-f',
       'ba/b',
       '-x',

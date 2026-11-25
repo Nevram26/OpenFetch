@@ -32,6 +32,14 @@ export function buildDownloadArgs(
         ]
   return [
     '--no-playlist',
+    '--retries',
+    '1',
+    '--fragment-retries',
+    '1',
+    '--sleep-interval',
+    '1',
+    '--max-sleep-interval',
+    '1',
     ...format,
     '--embed-metadata',
     '--embed-thumbnail',
