@@ -38,6 +38,7 @@ export function createDownloadQueue(opts: Options) {
   let closing = false
   let resumePending = false
   const active = new Set<string>()
+  const completing = new Map<string, Promise<void>>()
   const subscribers = new Set<(jobs: QueueJob[]) => void>()
   let writes = Promise.resolve()
   const persist = () => {
@@ -191,14 +192,19 @@ export function createDownloadQueue(opts: Options) {
       if (result.ok) {
         if (job.status === 'resolving') transition(id, 'downloading')
         if (job.status !== 'processing') transition(id, 'processing')
-        await opts.completed?.(result.completed)
-        transition(id, 'completed', {
-          outputPath: result.completed.finalPath,
-          progressPercent: 100,
-          errorCode: undefined,
-          errorMessage: undefined
-        })
-        await persist()
+        // The file is finalized; cancellation must wait for its library record to commit.
+        const completion = (async () => {
+          await opts.completed?.(result.completed)
+          transition(id, 'completed', {
+            outputPath: result.completed.finalPath,
+            progressPercent: 100,
+            errorCode: undefined,
+            errorMessage: undefined
+          })
+          await persist()
+        })()
+        completing.set(id, completion)
+        await completion
       } else {
         transition(id, 'failed', {
           errorCode: result.failure.code,
@@ -217,12 +223,14 @@ export function createDownloadQueue(opts: Options) {
         await persist().catch(() => {})
       }
     } finally {
+      completing.delete(id)
       active.delete(id)
       void pump()
     }
   }
   async function cancel(id: string): Promise<void> {
     if (!loaded) await initialize()
+    if (completing.has(id)) return completing.get(id)
     const job = jobs.find((j) => j.id === id)
     if (!job) throw new Error('Download job not found')
     if (job.status === 'queued') {

@@ -186,3 +186,44 @@ describe('download queue', () => {
     release.splice(0).forEach((r) => r())
   })
 })
+
+it('waits for library completion when cancel races a finalized download', async () => {
+  let release!: () => void
+  const gate = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  let entered!: () => void
+  const started = new Promise<void>((resolve) => {
+    entered = resolve
+  })
+  const runner = {
+    run: async (job: QueueJob) => ({
+      ok: true as const,
+      completed: {
+        jobId: job.id,
+        source: job.source,
+        options: job.options,
+        actualOutput: { container: 'mp3' as const },
+        finalPath: 'C:/Downloads/song.mp3'
+      }
+    }),
+    cancel: vi.fn(async () => {}),
+    shutdown: async () => {}
+  }
+  const q = createDownloadQueue({
+    store: { read: async () => [], write: async () => {} },
+    runner,
+    completed: async () => {
+      entered()
+      await gate
+    }
+  })
+  const [id] = await q.enqueue([entry])
+  await started
+  const canceled = q.cancel(id!)
+  expect(q.list()[0]!.status).toBe('processing')
+  release()
+  await canceled
+  expect(q.list()[0]!.status).toBe('completed')
+  expect(runner.cancel).not.toHaveBeenCalled()
+})
