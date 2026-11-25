@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { Download, FileAudio, FileVideo, Folder, X } from 'lucide-react'
 import { Button } from '../../components/ui'
-import { formatDuration, type SearchResult } from './sample-results'
+import type { MediaSource } from '../../../../shared/api'
+import { formatDuration } from './format'
 
 export type Format = 'mp3' | 'mp4'
 
@@ -34,7 +35,7 @@ export function DownloadOptionsDialog({
   initialFormat,
   onClose
 }: {
-  result: SearchResult
+  result: MediaSource
   initialFormat: Format
   onClose: () => void
 }) {

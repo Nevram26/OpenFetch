@@ -3,6 +3,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { z } from 'zod'
 import { APP_ORIGIN, APP_SCHEME, resolveAppFile } from './app-protocol.js'
 import { guard, originOf } from './ipc.js'
+import { registerEngineIpc } from './engine/ipc.js'
 import type { AppInfo } from '../shared/api.js'
 
 // Dev loads the electron-vite server; everything else loads the built UI over app://, never file://.
@@ -75,6 +76,8 @@ if (!app.requestSingleInstanceLock()) {
         chrome: process.versions.chrome
       }))
     )
+
+    registerEngineIpc(uiOrigin)
 
     createWindow()
   })
