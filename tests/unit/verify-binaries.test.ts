@@ -1,4 +1,4 @@
-import { mkdtemp, rm, writeFile, readFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, rm, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
@@ -7,6 +7,7 @@ import { beforeAll, afterAll, describe, expect, it } from 'vitest'
 import {
   verifyDir,
   verifyYtDlp,
+  treeDigest,
   loadManifest,
   SUMS_FILE,
   SIG_FILE,
@@ -119,5 +120,73 @@ describe('verifyDir with the real manifest shape', () => {
       armoredKey: await readFile(join(import.meta.dirname, '../../', m.ytdlpKey.path), 'utf8')
     })
     expect(key.getFingerprint()).toBe(m.ytdlpKey.fingerprint)
+  })
+})
+
+describe('yt-dlp onedir zip layout', () => {
+  const zip = Buffer.from('pretend yt-dlp_win.zip')
+  const zipCheck = async (sums: string, sig: Buffer, pin = sha(zip)) => {
+    const dir = await mkdtemp(join(tmp, 'z-'))
+    await writeFile(join(dir, 'yt-dlp_win.zip'), zip)
+    await writeFile(join(dir, SUMS_FILE), sums)
+    await writeFile(join(dir, SIG_FILE), sig)
+    return verifyYtDlp(
+      join(dir, 'yt-dlp_win.zip'),
+      join(dir, SUMS_FILE),
+      join(dir, SIG_FILE),
+      armored,
+      fp,
+      pin
+    )
+  }
+  it('accepts a zip listed in the signed sums', async () => {
+    const sums = `${sha(zip)} *yt-dlp_win.zip\n`
+    await zipCheck(sums, await sign(sums, privateKey))
+  })
+  it('rejects a zip whose name is not in the signed sums', async () => {
+    const sums = `${sha(zip)}  yt-dlp.exe\n`
+    await expect(zipCheck(sums, await sign(sums, privateKey))).rejects.toThrow(/not listed/)
+  })
+  it('rejects a zip differing from the manifest pin', async () => {
+    const sums = `${sha(zip)}  yt-dlp_win.zip\n`
+    await expect(zipCheck(sums, await sign(sums, privateKey), '0'.repeat(64))).rejects.toThrow(
+      /manifest pin/
+    )
+  })
+
+  it('verifyDir fails on any tampered, added or removed file in the extracted tree', async () => {
+    const real = await loadManifest()
+    const dir = await mkdtemp(join(tmp, 'o-'))
+    const root = join(dir, 'yt-dlp')
+    await mkdir(join(root, '_internal'), { recursive: true })
+    await writeFile(join(root, 'yt-dlp.exe'), 'exe')
+    await writeFile(join(root, '_internal', 'a.pyd'), 'pyd')
+    const m: Manifest = {
+      ...real,
+      binaries: [
+        {
+          ...real.binaries[0]!,
+          files: { 'yt-dlp/yt-dlp.exe': sha(Buffer.from('exe')) },
+          extractTo: 'yt-dlp',
+          treeSha256: await treeDigest(root)
+        }
+      ]
+    }
+    await verifyDir(dir, m)
+    await writeFile(join(root, '_internal', 'a.pyd'), 'pyD')
+    await expect(verifyDir(dir, m)).rejects.toThrow(/tree digest/)
+    await writeFile(join(root, '_internal', 'a.pyd'), 'pyd')
+    await writeFile(join(root, '_internal', 'extra.dll'), 'x')
+    await expect(verifyDir(dir, m)).rejects.toThrow(/tree digest/)
+    await rm(join(root, '_internal', 'extra.dll'))
+    await writeFile(join(root, 'yt-dlp.exe'), 'EXE')
+    await expect(verifyDir(dir, m)).rejects.toThrow(/SHA-256 mismatch/)
+  })
+  it('real manifest is onedir: zip asset, exe pin and tree pin', async () => {
+    const y = (await loadManifest()).binaries[0]!
+    expect(y.url).toMatch(/\/2026\.11\.23\/yt-dlp_win\.zip$/)
+    expect(y.extractTo).toBe('yt-dlp')
+    expect(y.treeSha256).toMatch(/^[0-9a-f]{64}$/)
+    expect(Object.keys(y.files)).toEqual(['yt-dlp/yt-dlp.exe'])
   })
 })

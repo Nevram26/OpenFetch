@@ -1,5 +1,4 @@
-# Minimal packaging config for verifying the security baseline (`npm run build:unpack`).
-# Installer/portable targets, bundled engine binaries and publishing come in #12.
+# `npm run dist` builds the NSIS installer and the portable exe; `build:unpack` only the unpacked dir.
 appId: io.github.nevram26.openfetch
 productName: OpenFetch
 directories:
@@ -7,6 +6,15 @@ directories:
 files:
   - out/**
   - package.json
+# Engine binaries live outside the asar (they are spawned): <resourcesPath>/binaries/
+extraResources:
+  - from: resources/binaries
+    to: binaries
+  # GPL / notice obligations: ship the license texts next to the binaries.
+  - from: licenses
+    to: licenses
+  - LICENSE
+  - THIRD_PARTY_NOTICES.md
 electronFuses:
   runAsNode: false
   enableCookieEncryption: true
@@ -17,4 +25,15 @@ electronFuses:
   onlyLoadAppFromAsar: true
   grantFileProtocolExtraPrivileges: false
 win:
-  target: dir
+  target:
+    - nsis
+    - portable
+# One-click + perMachine:false is guaranteed per-user (no admin, no per-machine choice page);
+# it still registers an Apps & features uninstaller. User data in %APPDATA% is kept on uninstall.
+nsis:
+  oneClick: true
+  perMachine: false
+  deleteAppDataOnUninstall: false
+  artifactName: OpenFetch-Setup-${version}.exe
+portable:
+  artifactName: OpenFetch-${version}-portable.exe
