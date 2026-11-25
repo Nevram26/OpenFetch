@@ -55,12 +55,16 @@ if (!app.requestSingleInstanceLock()) {
   })
 
   void app.whenReady().then(() => {
-    session.defaultSession.setPermissionRequestHandler((_wc, _permission, callback) => callback(false))
+    session.defaultSession.setPermissionRequestHandler((_wc, _permission, callback) =>
+      callback(false)
+    )
     session.defaultSession.setPermissionCheckHandler(() => false)
 
     protocol.handle(APP_SCHEME, (request) => {
       const file = resolveAppFile(rendererDir, request.url)
-      return file ? net.fetch(pathToFileURL(file).toString()) : new Response('Not found', { status: 404 })
+      return file
+        ? net.fetch(pathToFileURL(file).toString())
+        : new Response('Not found', { status: 404 })
     })
 
     ipcMain.handle(

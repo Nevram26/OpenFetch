@@ -20,7 +20,9 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
 
   // Unknown duration only passes the "any" filter: never guess.
   const results = sampleResults.filter(
-    (r) => duration === 'any' || (r.durationSeconds !== undefined && durations[duration].test(r.durationSeconds))
+    (r) =>
+      duration === 'any' ||
+      (r.durationSeconds !== undefined && durations[duration].test(r.durationSeconds))
   )
 
   return (
@@ -35,7 +37,11 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
         }}
       >
         <div className="relative flex-1">
-          <Search size={18} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" aria-hidden />
+          <Search
+            size={18}
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+            aria-hidden
+          />
           <input
             type="search"
             aria-label="Search for a song, artist or video"
@@ -90,7 +96,10 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
 
       <ul className="flex flex-col gap-3">
         {results.map((r) => (
-          <li key={r.sourceId} className="flex items-center gap-4 rounded-lg border border-line p-2.5">
+          <li
+            key={r.sourceId}
+            className="flex items-center gap-4 rounded-lg border border-line p-2.5"
+          >
             <div className="relative grid h-[68px] w-[120px] shrink-0 place-items-center rounded-md bg-gradient-to-br from-leaf-300 to-leaf-600 text-white">
               <Music size={24} aria-hidden />
               {r.durationSeconds !== undefined && (
@@ -103,10 +112,15 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
             <div className="min-w-0 flex-1">
               <h3 className="truncate font-semibold">{r.title}</h3>
               {r.channel && <p className="text-sm text-muted">{r.channel}</p>}
-              {r.viewCount !== undefined && <p className="text-xs text-muted">{formatViews(r.viewCount)}</p>}
+              {r.viewCount !== undefined && (
+                <p className="text-xs text-muted">{formatViews(r.viewCount)}</p>
+              )}
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => setSelected({ result: r, format: 'mp3' })} aria-label={`Download MP3: ${r.title}`}>
+              <Button
+                onClick={() => setSelected({ result: r, format: 'mp3' })}
+                aria-label={`Download MP3: ${r.title}`}
+              >
                 <FileAudio size={16} aria-hidden /> MP3
               </Button>
               <Button
@@ -122,7 +136,11 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
       </ul>
 
       {selected && (
-        <DownloadOptionsDialog result={selected.result} initialFormat={selected.format} onClose={() => setSelected(null)} />
+        <DownloadOptionsDialog
+          result={selected.result}
+          initialFormat={selected.format}
+          onClose={() => setSelected(null)}
+        />
       )}
     </>
   )

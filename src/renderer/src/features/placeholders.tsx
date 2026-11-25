@@ -5,7 +5,11 @@ import { Button, EmptyState, PageHeader } from '../components/ui'
 export function PasteLinkScreen() {
   return (
     <>
-      <PageHeader icon={<Link2 size={24} />} title="Paste link" subtitle="Download a single video or choose items from a playlist." />
+      <PageHeader
+        icon={<Link2 size={24} />}
+        title="Paste link"
+        subtitle="Download a single video or choose items from a playlist."
+      />
       <form className="mb-6 flex gap-3" onSubmit={(e) => e.preventDefault()}>
         <input
           type="url"
@@ -18,7 +22,8 @@ export function PasteLinkScreen() {
         </Button>
       </form>
       <EmptyState icon={<Link2 size={32} />} title="Links are connected in a later update">
-        You will be able to paste a YouTube video, Short or playlist link here. Only download media you are allowed to save.
+        You will be able to paste a YouTube video, Short or playlist link here. Only download media
+        you are allowed to save.
       </EmptyState>
     </>
   )
@@ -38,7 +43,8 @@ export function DownloadsScreen() {
         }
       />
       <EmptyState icon={<Download size={32} />} title="No downloads yet">
-        Choose MP3 or MP4 on a search result to start a download. Progress, cancel and retry appear here.
+        Choose MP3 or MP4 on a search result to start a download. Progress, cancel and retry appear
+        here.
       </EmptyState>
     </>
   )
@@ -47,7 +53,11 @@ export function DownloadsScreen() {
 export function LibraryScreen() {
   return (
     <>
-      <PageHeader icon={<FolderOpen size={24} />} title="My library" subtitle="Your downloaded music and videos, organized in one place." />
+      <PageHeader
+        icon={<FolderOpen size={24} />}
+        title="My library"
+        subtitle="Your downloaded music and videos, organized in one place."
+      />
       <div className="mb-5 flex gap-3" role="group" aria-label="Library type">
         <Button variant="soft" aria-pressed="true">
           <Music size={16} aria-hidden /> Music (0)
@@ -57,8 +67,16 @@ export function LibraryScreen() {
         </Button>
         <label className="relative ml-auto w-72">
           <span className="sr-only">Search in library</span>
-          <Search size={16} className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted" aria-hidden />
-          <input type="search" placeholder="Search in library…" className="w-full rounded-md border border-line py-2 pr-3 pl-9 text-sm" />
+          <Search
+            size={16}
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted"
+            aria-hidden
+          />
+          <input
+            type="search"
+            placeholder="Search in library…"
+            className="w-full rounded-md border border-line py-2 pr-3 pl-9 text-sm"
+          />
         </label>
       </div>
       <EmptyState icon={<FolderOpen size={32} />} title="Your library is empty">

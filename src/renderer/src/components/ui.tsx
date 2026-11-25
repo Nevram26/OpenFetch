@@ -16,7 +16,17 @@ export function Button({
   return <button type="button" className={`${base} ${variants[variant]} ${className}`} {...props} />
 }
 
-export function PageHeader({ icon, title, subtitle, action }: { icon: ReactNode; title: string; subtitle?: string; action?: ReactNode }) {
+export function PageHeader({
+  icon,
+  title,
+  subtitle,
+  action
+}: {
+  icon: ReactNode
+  title: string
+  subtitle?: string
+  action?: ReactNode
+}) {
   return (
     <header className="mb-6 flex items-start justify-between gap-4">
       <div className="flex items-start gap-3">
@@ -33,7 +43,15 @@ export function PageHeader({ icon, title, subtitle, action }: { icon: ReactNode;
   )
 }
 
-export function EmptyState({ icon, title, children }: { icon: ReactNode; title: string; children: ReactNode }) {
+export function EmptyState({
+  icon,
+  title,
+  children
+}: {
+  icon: ReactNode
+  title: string
+  children: ReactNode
+}) {
   return (
     <div className="flex flex-col items-center rounded-lg border border-dashed border-leaf-300 bg-side px-6 py-14 text-center">
       <span className="mb-3 text-leaf-600" aria-hidden>
