@@ -1,0 +1,6 @@
+{
+  "notes": "SYNTHETIC (not recorded): the usual yt-dlp message when DNS fails, for offline/error UI states.",
+  "stdout": "",
+  "stderr": "ERROR: [youtube:search] zzz: Unable to download API page: <urlopen error [Errno 11001] getaddrinfo failed> (caused by URLError(gaierror(11001, 'getaddrinfo failed')))\n",
+  "exitCode": 1
+}

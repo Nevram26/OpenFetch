@@ -20,7 +20,8 @@
     "binaries:verify": "tsx scripts/verify-binaries.ts",
     "lint": "eslint .",
     "format:check": "prettier --check src tests scripts .github *.ts *.js package.json",
-    "format": "prettier --write src tests scripts .github *.ts *.js package.json"
+    "format": "prettier --write src tests scripts .github *.ts *.js package.json",
+    "spike:record": "tsx scripts/spike/record.ts"
   },
   "dependencies": {
     "openpgp": "^6.3.3",
