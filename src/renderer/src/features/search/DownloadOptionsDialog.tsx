@@ -33,15 +33,34 @@ const choice =
 export function DownloadOptionsDialog({
   result,
   initialFormat,
+  onQueue,
   onClose
 }: {
   result: MediaSource
   initialFormat: Format
+  onQueue: (
+    source: MediaSource,
+    options:
+      | { format: 'mp3'; bitrateKbps: 128 | 192 | 320 }
+      | { format: 'mp4'; maxHeight: 360 | 480 | 720 | 1080 | 'best' },
+    destination?: string
+  ) => Promise<void>
   onClose: () => void
 }) {
   const ref = useRef<HTMLDialogElement>(null)
   const [format, setFormat] = useState<Format>(initialFormat)
   const [quality, setQuality] = useState(defaults[initialFormat])
+  const [folder, setFolder] = useState('')
+  const [customFolder, setCustomFolder] = useState<string>()
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    void window.openfetch
+      .downloadsGetFolder(format === 'mp3' ? 'music' : 'video')
+      .then(setFolder)
+      .catch(() => {})
+  }, [format])
 
   // Native modal <dialog>: focus trap, Esc to close and an inert background for free.
   useEffect(() => {
@@ -87,6 +106,7 @@ export function DownloadOptionsDialog({
                 onChange={() => {
                   setFormat(f)
                   setQuality(defaults[f])
+                  setCustomFolder(undefined)
                 }}
               />
               {f === 'mp3' ? (
@@ -129,17 +149,57 @@ export function DownloadOptionsDialog({
       <div className="mb-6">
         <p className="mb-2 font-semibold">Save location</p>
         <div className="flex gap-2">
-          <p className="flex flex-1 items-center gap-2 rounded-md border border-line px-3 py-2 text-sm text-muted">
-            <Folder size={16} aria-hidden /> {folders[format]}
+          <p className="flex min-w-0 flex-1 items-center gap-2 rounded-md border border-line px-3 py-2 text-sm text-muted">
+            <Folder size={16} aria-hidden />{' '}
+            <span className="truncate">{customFolder ?? folder ?? folders[format]}</span>
           </p>
-          <Button disabled>Browse…</Button>
+          <Button
+            onClick={async () => {
+              const selected = await window.openfetch.downloadsChooseFolder(
+                format === 'mp3' ? 'music' : 'video'
+              )
+              if (selected) {
+                setFolder(selected)
+                setCustomFolder(selected)
+              }
+            }}
+          >
+            Browse…
+          </Button>
         </div>
       </div>
 
+      {error && (
+        <p role="alert" className="mb-3 text-sm text-danger">
+          {error}
+        </p>
+      )}
+
       <div className="flex items-center justify-end gap-3">
-        <p className="mr-auto text-xs text-muted">Downloading is connected in a later update.</p>
         <Button onClick={() => ref.current?.close()}>Cancel</Button>
-        <Button variant="primary" disabled>
+        <Button
+          variant="primary"
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true)
+            setError('')
+            try {
+              const options =
+                format === 'mp3'
+                  ? { format, bitrateKbps: Number(quality) as 128 | 192 | 320 }
+                  : {
+                      format,
+                      maxHeight: (quality === 'best' ? 'best' : Number(quality)) as
+                        360 | 480 | 720 | 1080 | 'best'
+                    }
+              await onQueue(result, options, customFolder)
+              ref.current?.close()
+            } catch (e) {
+              setError(e instanceof Error ? e.message : 'Could not add download')
+              setBusy(false)
+            }
+          }}
+        >
           <Download size={16} aria-hidden /> Download
         </Button>
       </div>

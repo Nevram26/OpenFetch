@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { CloudDownload, Download, FolderOpen, Link2, Search, Settings } from 'lucide-react'
 import { SearchScreen } from './features/search/SearchScreen'
 import { PasteLinkScreen } from './features/link/PasteLinkScreen'
-import { DownloadsScreen } from './features/placeholders'
+import { DownloadsScreen } from './features/downloads/DownloadsScreen'
 import { LibraryScreen } from './features/library/LibraryScreen'
 import { SettingsScreen } from './features/settings/SettingsScreen'
 
@@ -51,7 +51,7 @@ export function App() {
       </nav>
       <main className="min-w-0 flex-1 overflow-y-auto px-8 py-7">
         {screen === 'search' && <SearchScreen onOpenDownloads={() => setScreen('downloads')} />}
-        {screen === 'link' && <PasteLinkScreen />}
+        {screen === 'link' && <PasteLinkScreen onOpenDownloads={() => setScreen('downloads')} />}
         {screen === 'downloads' && <DownloadsScreen />}
         {screen === 'library' && <LibraryScreen />}
         {screen === 'settings' && <SettingsScreen />}

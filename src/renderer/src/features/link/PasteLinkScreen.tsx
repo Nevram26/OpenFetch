@@ -1,10 +1,11 @@
 import { useRef, useState } from 'react'
-import { FileAudio, FileVideo, Link2, Music } from 'lucide-react'
+import { FileAudio, FileVideo, Link2, Music, Download } from 'lucide-react'
 import type { MediaSource, PlaylistPreview } from '../../../../shared/api'
 import type { ErrorCode } from '../../../../shared/errors'
 import { parseSourceUrl, type RejectReason } from '../../../../shared/source-url'
 import { Button, EngineError, PageHeader } from '../../components/ui'
 import { formatDuration } from '../search/format'
+import { DownloadOptionsDialog, type Format } from '../search/DownloadOptionsDialog'
 
 const reasonText: Record<RejectReason, string> = {
   empty: 'Paste a YouTube link.',
@@ -28,10 +29,12 @@ type State =
   | { status: 'playlist'; list: PlaylistPreview }
   | { status: 'error'; code: ErrorCode; stderrTail: string }
 
-export function PasteLinkScreen() {
+export function PasteLinkScreen({ onOpenDownloads }: { onOpenDownloads: () => void }) {
   const [input, setInput] = useState('')
   const [state, setState] = useState<State>({ status: 'idle' })
   const [picked, setPicked] = useState<Set<string>>(new Set())
+  const [download, setDownload] = useState<{ source: MediaSource; format: Format }>()
+  const [playlistFormat, setPlaylistFormat] = useState<Format>('mp3')
   const latest = useRef(0) // drops answers to an older click
 
   const parsed = input.trim() ? parseSourceUrl(input) : undefined
@@ -64,6 +67,49 @@ export function PasteLinkScreen() {
 
   return (
     <>
+      {download && (
+        <DownloadOptionsDialog
+          result={download.source}
+          initialFormat={download.format}
+          onClose={() => setDownload(undefined)}
+          onQueue={async (source, options, destination) => {
+            const selected =
+              state.status === 'playlist'
+                ? state.list.entries.filter((e) => picked.has(e.sourceId))
+                : [source]
+            if (
+              selected.length > 1 &&
+              !window.confirm(
+                `Add ${selected.length} selected playlist items to the download queue?`
+              )
+            )
+              return
+            const entries = selected.map((item) => ({
+              source: item,
+              options,
+              ...(destination ? { destination } : {})
+            }))
+            try {
+              await window.openfetch.downloadsEnqueue(entries)
+            } catch (e) {
+              if (
+                !(
+                  typeof e === 'object' &&
+                  e !== null &&
+                  'message' in e &&
+                  String(e.message).startsWith('DUPLICATE_DOWNLOAD:')
+                ) ||
+                !window.confirm(
+                  'Some exact downloads already exist. Add copies with non-conflicting filenames?'
+                )
+              )
+                throw e
+              await window.openfetch.downloadsEnqueue(entries, true)
+            }
+            onOpenDownloads()
+          }}
+        />
+      )}
       <PageHeader
         icon={<Link2 size={24} />}
         title="Paste link"
@@ -133,7 +179,7 @@ export function PasteLinkScreen() {
               </button>
             )}
           </div>
-          <Downloads />
+          <Downloads onPick={(format) => setDownload({ source: state.video, format })} />
         </div>
       )}
 
@@ -169,8 +215,29 @@ export function PasteLinkScreen() {
               </li>
             ))}
           </ul>
-          <div className="mt-4">
-            <Downloads />
+          <div className="mt-4 flex items-center gap-3">
+            <label className="text-sm">
+              Download format{' '}
+              <select
+                aria-label="Playlist download format"
+                value={playlistFormat}
+                onChange={(e) => setPlaylistFormat(e.target.value as Format)}
+                className="ml-2 rounded border border-line px-2 py-1"
+              >
+                <option value="mp3">MP3 · 192 kbps</option>
+                <option value="mp4">MP4 · 720p</option>
+              </select>
+            </label>
+            <Button
+              variant="primary"
+              disabled={!picked.size}
+              onClick={() => {
+                const source = state.list.entries.find((e) => picked.has(e.sourceId))
+                if (source) setDownload({ source, format: playlistFormat })
+              }}
+            >
+              <Download size={16} aria-hidden /> Download {picked.size} selected
+            </Button>
           </div>
         </section>
       )}
@@ -196,13 +263,13 @@ function Thumb({ item }: { item: MediaSource }) {
 }
 
 // Downloads are wired in Phase 4 (#9/#10).
-function Downloads() {
+function Downloads({ onPick }: { onPick: (format: Format) => void }) {
   return (
     <div className="flex gap-2">
-      <Button disabled title="Downloads arrive in a later update">
+      <Button onClick={() => onPick('mp3')}>
         <FileAudio size={16} aria-hidden /> MP3
       </Button>
-      <Button variant="primary" disabled title="Downloads arrive in a later update">
+      <Button variant="primary" onClick={() => onPick('mp4')}>
         <FileVideo size={16} aria-hidden /> MP4
       </Button>
     </div>
