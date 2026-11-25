@@ -12,6 +12,7 @@ const durations = {
   long: { label: 'Over 20 minutes', test: (s: number) => s > 1200 }
 }
 type DurationKey = keyof typeof durations
+let searchSequence = 0
 
 type State =
   | { status: 'idle' }
@@ -38,7 +39,7 @@ export function SearchScreen({ onOpenDownloads }: { onOpenDownloads: () => void 
   function run(raw: string) {
     const text = raw.trim()
     if (!text) return // empty queries never start a search
-    const id = crypto.randomUUID()
+    const id = `search-${++searchSequence}`
     latest.current = id
     setQuery(text)
     setState({ status: 'loading' })
