@@ -1,0 +1,200 @@
+{
+ "args": [
+  "--ignore-config",
+  "--no-update",
+  "--js-runtimes",
+  "deno:<BIN>\\deno.exe",
+  "--ffmpeg-location",
+  "<BIN>",
+  "--no-playlist",
+  "-f",
+  "bv*[vcodec^=avc1]+ba[acodec^=mp4a]/b[vcodec^=avc1]/bv*+ba/b",
+  "-S",
+  "res:720",
+  "--merge-output-format",
+  "mp4",
+  "--embed-metadata",
+  "--embed-thumbnail",
+  "--convert-thumbnails",
+  "jpg",
+  "-P",
+  "home:<ROOT>\\spike-output\\st-c3\\out",
+  "-P",
+  "temp:<ROOT>\\spike-output\\st-c3\\tmp",
+  "-o",
+  "%(title).150B [%(id)s].%(ext)s",
+  "--windows-filenames",
+  "--newline",
+  "--progress",
+  "--progress-template",
+  "download:[OF] %(progress.status)s|%(progress.downloaded_bytes)s|%(progress.total_bytes)s|%(progress.total_bytes_estimate)s|%(progress.speed)s|%(progress.eta)s|%(progress.fragment_index)s|%(info.id)s",
+  "--progress-template",
+  "postprocess:[OFPP] %(progress.status)s|%(progress.postprocessor)s|%(info.id)s",
+  "--print",
+  "after_move:[OFPATH] %(filepath)j",
+  "--",
+  "aqz-KE-bpKQ"
+ ],
+ "stdout": "[OF] downloading|1024|150524867|NA|NA|NA|NA|aqz-KE-bpKQ\n[OF] downloading|3072|150524867|NA|1800070.1156747695|83|NA|aqz-KE-bpKQ\n[OF] downloading|7168|150524867|NA|2620937.239299102|57|NA|aqz-KE-bpKQ\n[OF] downloading|15360|150524867|NA|4144121.281358549|36|NA|aqz-KE-bpKQ\n[OF] downloading|31744|150524867|NA|6718336.167928146|22|NA|aqz-KE-bpKQ\n[OF] downloading|10265929|150524867|NA|11871752.557937868|11|NA|aqz-KE-bpKQ\n[OF] downloading|10528073|150524867|NA|11695923.177080613|11|NA|aqz-KE-bpKQ\n[OF] downloading|11052361|150524867|NA|11748815.542813137|11|NA|aqz-KE-bpKQ\n[OF] downloading|12100937|150524867|NA|11758299.4140937|11|NA|aqz-KE-bpKQ\n[OF] downloading|14198089|150524867|NA|11761399.57851826|11|NA|aqz-KE-bpKQ\n",
+ "stderr": "WARNING: Unknown codec iamf.001.001.Opus\n[OFPP] started|ThumbnailsConvertor|aqz-KE-bpKQ\n[OFPP] finished|ThumbnailsConvertor|aqz-KE-bpKQ\n",
+ "exitCode": 1,
+ "durationMs": 5359,
+ "startedAt": "2026-11-25T16:39:37.596Z",
+ "notes": "taskkill /T /F ~0.5s after 5MB | stdout: 26 progress lines thinned to 10",
+ "license": "Creative Commons Attribution license (reuse allowed) per yt-dlp license field; uploader Blender (Blender Foundation official channel); (c) Blender Foundation, www.bigbuckbunny.org",
+ "chunkTimings": [
+  [
+   3269,
+   "e",
+   41
+  ],
+  [
+   3706,
+   "e",
+   47
+  ],
+  [
+   3818,
+   "e",
+   48
+  ],
+  [
+   3837,
+   "o",
+   56
+  ],
+  [
+   3838,
+   "o",
+   72
+  ],
+  [
+   3839,
+   "o",
+   71
+  ],
+  [
+   3840,
+   "o",
+   72
+  ],
+  [
+   3841,
+   "o",
+   72
+  ],
+  [
+   3842,
+   "o",
+   73
+  ],
+  [
+   3846,
+   "o",
+   74
+  ],
+  [
+   3857,
+   "o",
+   74
+  ],
+  [
+   3881,
+   "o",
+   73
+  ],
+  [
+   3924,
+   "o",
+   74
+  ],
+  [
+   4013,
+   "o",
+   75
+  ],
+  [
+   4192,
+   "o",
+   75
+  ],
+  [
+   4549,
+   "o",
+   75
+  ],
+  [
+   4685,
+   "o",
+   76
+  ],
+  [
+   4693,
+   "o",
+   76
+  ],
+  [
+   4693,
+   "o",
+   76
+  ],
+  [
+   4694,
+   "o",
+   75
+  ],
+  [
+   4695,
+   "o",
+   75
+  ],
+  [
+   4695,
+   "o",
+   75
+  ],
+  [
+   4697,
+   "o",
+   76
+  ],
+  [
+   4704,
+   "o",
+   76
+  ],
+  [
+   4714,
+   "o",
+   76
+  ],
+  [
+   4737,
+   "o",
+   76
+  ],
+  [
+   4781,
+   "o",
+   76
+  ],
+  [
+   4870,
+   "o",
+   74
+  ],
+  [
+   5048,
+   "o",
+   75
+  ]
+ ],
+ "cancel": {
+  "cancelledAtMs": 4549,
+  "ownedProcessesRemaining": [],
+  "stagingFilesAfterKill": [
+   "tmp/Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film [aqz-KE-bpKQ].f298.mp4.part (14198089 B)",
+   "tmp/Big Buck Bunny 60fps 4K - Official Blender Foundation Short Film [aqz-KE-bpKQ].jpg (69266 B)"
+  ]
+ }
+}
