@@ -1,0 +1,24 @@
+{
+  "name": "openfetch",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "binaries:fetch": "tsx scripts/fetch-binaries.ts",
+    "binaries:verify": "tsx scripts/verify-binaries.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^24",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.2"
+  },
+  "dependencies": {
+    "openpgp": "^6.3.3"
+  }
+}
