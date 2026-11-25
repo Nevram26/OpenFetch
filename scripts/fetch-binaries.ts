@@ -2,7 +2,7 @@
 // Any failure leaves the previous resources/binaries/ untouched (or absent) and exits non-zero.
 import { execFileSync } from 'node:child_process'
 import { createWriteStream } from 'node:fs'
-import { mkdir, readdir, rename, rm } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rename, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { Readable } from 'node:stream'
@@ -14,6 +14,7 @@ import {
   loadManifest,
   root,
   verifyDir,
+  verifyYtDlp,
   type Manifest
 } from './verify-binaries.js'
 
@@ -45,24 +46,32 @@ export async function fetchAll(m: Manifest, out = join(root, 'resources/binaries
       await download(b.url, file)
       await assertSha256(file, b.sha256) // verify the archive before extracting it
       if (b.verification === 'gpg+sha256') {
-        await download(b.sumsUrl!, join(next, SUMS_FILE))
-        await download(b.sigUrl!, join(next, SIG_FILE))
-        await rename(file, join(next, 'yt-dlp.exe'))
-      } else {
-        const ex = join(work, b.name)
-        await mkdir(ex)
-        // bsdtar ships with Windows 11 and reads zip; Git Bash's GNU tar does not, so use it by full path.
-        execFileSync(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'tar.exe'), [
-          '-xf',
+        // zip hash must be in the GPG-signed SHA2-256SUMS and equal the pin
+        await download(b.sumsUrl!, join(work, SUMS_FILE))
+        await download(b.sigUrl!, join(work, SIG_FILE))
+        await verifyYtDlp(
           file,
-          '-C',
-          ex
-        ])
+          join(work, SUMS_FILE),
+          join(work, SIG_FILE),
+          await readFile(join(root, m.ytdlpKey.path), 'utf8'),
+          m.ytdlpKey.fingerprint,
+          b.sha256
+        )
+      }
+      const ex = b.extractTo ? join(next, b.extractTo) : join(work, b.name)
+      await mkdir(ex, { recursive: true })
+      // bsdtar ships with Windows 11 and reads zip; Git Bash's GNU tar does not, so use it by full path.
+      execFileSync(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32', 'tar.exe'), [
+        '-xf',
+        file,
+        '-C',
+        ex
+      ])
+      if (!b.extractTo)
         for (const exe of Object.keys(b.files))
           await rename(await findFile(ex, exe), join(next, exe))
-      }
     }
-    await verifyDir(next, m) // signature + exe hashes on exactly what will be installed
+    await verifyDir(next, m) // hashes + onedir tree digest on exactly what will be installed
     await rm(out, { recursive: true, force: true })
     await rename(next, out)
   } finally {

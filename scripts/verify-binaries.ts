@@ -2,8 +2,8 @@
 // Importable by tests and by fetch-binaries.ts; runs as a CLI when executed directly.
 import { createHash } from 'node:crypto'
 import { createReadStream } from 'node:fs'
-import { readFile } from 'node:fs/promises'
-import { join, dirname, resolve } from 'node:path'
+import { readFile, readdir } from 'node:fs/promises'
+import { join, dirname, resolve, basename, sep } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import * as openpgp from 'openpgp'
 
@@ -13,7 +13,9 @@ export interface ManifestBinary {
   arch: string
   url: string // exact asset URL
   sha256: string // of the downloaded asset
-  files: Record<string, string> // installed exe name -> sha256 of the extracted exe
+  files: Record<string, string> // installed exe path (relative to resources/binaries) -> sha256
+  extractTo?: string // onedir: extract the whole zip into this folder
+  treeSha256?: string // onedir: digest of every file under extractTo (see treeDigest)
   license: string
   source: string
   verification: 'gpg+sha256' | 'pinned-sha256'
@@ -80,7 +82,22 @@ export function sumFor(sums: string, name: string): string {
   throw new Error(`${name} is not listed in the signed SHA2-256SUMS`)
 }
 
-/** yt-dlp: signed sums -> exe hash must be in them AND equal the manifest pin. */
+/**
+ * Digest of every file under `dir`: sha256 over sorted `<sha256>  <relative path>` lines.
+ * Any changed, added or removed file (exe, .pyd, .dll, .pyc archive...) changes it.
+ */
+export async function treeDigest(dir: string): Promise<string> {
+  const lines: string[] = []
+  for (const e of await readdir(dir, { recursive: true, withFileTypes: true })) {
+    if (!e.isFile()) continue
+    const full = join(e.parentPath, e.name)
+    const rel = full.slice(dir.length + 1).replaceAll(sep, '/')
+    lines.push(`${await sha256File(full)}  ${rel}\n`)
+  }
+  return createHash('sha256').update(lines.sort().join('')).digest('hex')
+}
+
+/** yt-dlp asset (zip): signed sums -> its hash must be in them AND equal the manifest pin. */
 export async function verifyYtDlp(
   exe: string,
   sumsPath: string,
@@ -95,28 +112,25 @@ export async function verifyYtDlp(
     armoredKey,
     fingerprint
   )
-  const listed = sumFor(sums, 'yt-dlp.exe')
+  const name = basename(exe)
+  const listed = sumFor(sums, name)
   const actual = await sha256File(exe)
-  if (actual !== listed) throw new Error(`yt-dlp.exe hash ${actual} not in signed sums (${listed})`)
+  if (actual !== listed) throw new Error(`${name} hash ${actual} not in signed sums (${listed})`)
   if (actual !== pinned.toLowerCase())
-    throw new Error(`yt-dlp.exe hash ${actual} differs from manifest pin ${pinned}`)
+    throw new Error(`${name} hash ${actual} differs from manifest pin ${pinned}`)
 }
 
-/** Verify an install directory (fetch output) against the manifest. */
+/**
+ * Verify an install directory (fetch output) against the manifest. The yt-dlp zip's signed-sums
+ * check happens at fetch time (the zip is not kept); here the extracted tree is held to the pin.
+ */
 export async function verifyDir(dir: string, m: Manifest): Promise<void> {
-  const armoredKey = await readFile(join(root, m.ytdlpKey.path), 'utf8')
   for (const b of m.binaries) {
-    if (b.verification === 'gpg+sha256') {
-      await verifyYtDlp(
-        join(dir, 'yt-dlp.exe'),
-        join(dir, SUMS_FILE),
-        join(dir, SIG_FILE),
-        armoredKey,
-        m.ytdlpKey.fingerprint,
-        b.files['yt-dlp.exe']!
-      )
-    } else {
-      for (const [exe, hash] of Object.entries(b.files)) await assertSha256(join(dir, exe), hash)
+    for (const [exe, hash] of Object.entries(b.files)) await assertSha256(join(dir, exe), hash)
+    if (b.extractTo) {
+      const got = await treeDigest(join(dir, b.extractTo))
+      if (got !== b.treeSha256)
+        throw new Error(`${b.name} tree digest ${got} != pin ${b.treeSha256}`)
     }
   }
 }

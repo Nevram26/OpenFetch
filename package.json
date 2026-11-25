@@ -15,6 +15,7 @@
     "test:e2e": "electron-vite build && playwright test tests/e2e",
     "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.web.json",
     "build:unpack": "electron-vite build && electron-builder --dir",
+    "dist": "electron-vite build && electron-builder",
     "binaries:fetch": "tsx scripts/fetch-binaries.ts",
     "binaries:verify": "tsx scripts/verify-binaries.ts",
     "lint": "eslint .",
